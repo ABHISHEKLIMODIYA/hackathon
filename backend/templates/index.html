@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhushuraksha AI - Advanced Land Encroachment Detection</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/index.css" rel="stylesheet">
+    <!-- Leaflet for mini-map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- SocketIO for real-time -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-satellite"></i> Bhushuraksha AI
+            </a>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="map_view">Map View</a></li>
+                <li><a href="grievance_form">Grievance Portal</a></li>
+                <li><a href="report_viewer">Reports</a></li>
+                <li><a href="admin_dashboard">Admin Dashboard</a></li>
+                <li><a href="login">Login</a></li>
+                <li><a href="register">Register</a></li>
+                
+                <li>
+                    <select id="language-toggle" class="form-select" style="width: 120px;" aria-label="Language selection">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                    </select>
+                </li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Mini-Map -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title" data-lang-key="hero_title">
+                    Protecting Land Rights with 
+                    <span class="gradient-text" data-lang-key="ai_intelligence">AI Intelligence</span>
+                </h1>
+                <p class="hero-subtitle" data-lang-key="hero_subtitle">
+                    Advanced satellite-based land encroachment detection system powered by artificial intelligence. 
+                    Monitor, detect, and prevent unauthorized land use with 95% accuracy.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="scrollToSection('contact')">
+                        <i class="fas fa-rocket"></i>
+                        <span data-lang-key="get_started">Get Started</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="scrollToSection('demo')">
+                        <i class="fas fa-play"></i>
+                        <span data-lang-key="watch_demo">Watch Demo</span>
+                    </button>
+                </div>
+                <div class="hero-stats" id="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number" id="accuracy" data-target="95">0%</span>
+                        <span class="stat-label" data-lang-key="accuracy">Accuracy</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="monitoring" data-target="24/7">0</span>
+                        <span class="stat-label" data-lang-key="monitoring">Monitoring</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="alerts" data-target="0">0</span>
+                        <span class="stat-label" data-lang-key="alerts">Alerts</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="satellite-container">
+                    <div class="satellite">
+                        <i class="fas fa-satellite"></i>
+                    </div>
+                    <div class="scan-lines"></div>
+                    <div class="detection-points">
+                        <div class="point point-1"></div>
+                        <div class="point point-2"></div>
+                        <div class="point point-3"></div>
+                    </div>
+                </div>
+                <!-- Innovation: Mini-Map in Hero -->
+                <div id="hero-mini-map" style="height: 200px; margin-top: 20px; border-radius: 10px; overflow: hidden;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section (with lang keys) -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-lang-key="features_title">Comprehensive Land Protection</h2>
+                <p data-lang-key="features_subtitle">Advanced AI-powered features for complete land monitoring and encroachment detection</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-satellite-dish"></i>
+                    </div>
+                    <h3 data-lang-key="satellite_monitoring">Satellite Monitoring</h3>
+                    <p data-lang-key="satellite_desc">Real-time satellite imagery analysis using high-resolution data from Sentinel-2 and other sources.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 data-lang-key="ai_detection">AI Detection</h3>
+                    <p data-lang-key="ai_detection_desc">Advanced machine learning algorithms including OpenCV and Isolation Forest for accurate encroachment detection.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h3 data-lang-key="legal_validation">Legal Validation</h3>
+                    <p data-lang-key="legal_validation_desc">Automated cross-referencing with land records and legal databases to verify legitimacy of land use changes.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 data-lang-key="instant_alerts">Instant Alerts</h3>
+                    <p data-lang-key="instant_alerts_desc">Real-time notifications and alerts sent to relevant authorities when unauthorized activities are detected.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 data-lang-key="automated_reports">Automated Reports</h3>
+                    <p data-lang-key="automated_reports_desc">Generate comprehensive reports with evidence, coordinates, and legal documentation for enforcement actions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 data-lang-key="analytics_dashboard">Analytics Dashboard</h3>
+                    <p data-lang-key="analytics_dashboard_desc">Interactive dashboard with trends, statistics, and insights for better land management decisions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section id="technology" class="technology">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-lang-key="technology_title">Cutting-Edge Technology Stack</h2>
+                <p data-lang-key="technology_subtitle">Built with the latest AI and satellite technology for maximum accuracy and reliability</p>
+            </div>
+            <div class="tech-content">
+                <div class="tech-visual">
+                    <div class="tech-diagram">
+                        <div class="tech-layer" data-layer="satellite">
+                            <i class="fas fa-satellite"></i>
+                            <span data-lang-key="satellite_data">Satellite Data</span>
+                        </div>
+                        <div class="tech-layer" data-layer="ai">
+                            <i class="fas fa-robot"></i>
+                            <span data-lang-key="ai_processing">AI Processing</span>
+                        </div>
+                        <div class="tech-layer" data-layer="analysis">
+                            <i class="fas fa-search"></i>
+                            <span data-lang-key="image_analysis">Image Analysis</span>
+                        </div>
+                        <div class="tech-layer" data-layer="validation">
+                            <i class="fas fa-check-circle"></i>
+                            <span data-lang-key="legal_validation">Legal Validation</span>
+                        </div>
+                        <div class="tech-layer" data-layer="alert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span data-lang-key="alert_system">Alert System</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="tech-details">
+                    <div class="tech-item">
+                        <h4 data-lang-key="computer_vision">Computer Vision</h4>
+                        <p data-lang-key="computer_vision_desc">OpenCV-based image processing for detecting changes in land use patterns and identifying unauthorized constructions.</p>
+                        <div class="tech-tags">
+                            <span>OpenCV</span>
+                            <span data-lang-key="image_processing">Image Processing</span>
+                            <span data-lang-key="pattern_recognition">Pattern Recognition</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <h4 data-lang-key="machine_learning">Machine Learning</h4>
+                        <p data-lang-key="machine_learning_desc">Advanced ML algorithms trained on extensive datasets to achieve 95% accuracy in encroachment detection.</p>
+                        <div class="tech-tags">
+                            <span>Isolation Forest</span>
+                            <span data-lang-key="neural_networks">Neural Networks</span>
+                            <span data-lang-key="classification">Classification</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <h4 data-lang-key="satellite_integration">Satellite Integration</h4>
+                        <p data-lang-key="satellite_integration_desc">Integration with Sentinel-2 for high-resolution imagery and change detection.</p>
+                        <div class="tech-tags">
+                            <span>Sentinel-2</span>
+                            <span data-lang-key="satellite_imagery">Satellite Imagery</span>
+                            <span data-lang-key="gis_integration">GIS Integration</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <h4 data-lang-key="legal_database">Legal Database</h4>
+                        <p data-lang-key="legal_database_desc">Integration with land records, property databases, and legal documentation systems for validation.</p>
+                        <div class="tech-tags">
+                            <span data-lang-key="database_integration">Database Integration</span>
+                            <span data-lang-key="legal_records">Legal Records</span>
+                            <span data-lang-key="validation_system">Validation System</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="benefits">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-lang-key="benefits_title">Why Choose Bhushuraksha AI?</h2>
+                <p data-lang-key="benefits_subtitle">Comprehensive benefits for government agencies, property owners, and legal authorities</p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-number">01</div>
+                    <h3 data-lang-key="cost_effective">Cost Effective</h3>
+                    <p data-lang-key="cost_effective_desc">Reduce manual monitoring costs by up to 80% while increasing coverage and accuracy of land surveillance.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-number">02</div>
+                    <h3 data-lang-key="high_accuracy">High Accuracy</h3>
+                    <p data-lang-key="high_accuracy_desc">95% accuracy rate in detecting unauthorized land use changes, significantly reducing false positives and negatives.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-number">03</div>
+                    <h3 data-lang-key="real_time_monitoring">Real-time Monitoring</h3>
+                    <p data-lang-key="real_time_monitoring_desc">24/7 automated monitoring with instant alerts, enabling rapid response to encroachment activities.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-number">04</div>
+                    <h3 data-lang-key="legal_compliance">Legal Compliance</h3>
+                    <p data-lang-key="legal_compliance_desc">Automated legal validation and documentation generation for streamlined enforcement procedures.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-number">05</div>
+                    <h3 data-lang-key="scalable_solution">Scalable Solution</h3>
+                    <p data-lang-key="scalable_solution_desc">Easily scalable to monitor large areas, from individual properties to entire districts or states.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-number">06</div>
+                    <h3 data-lang-key="evidence_generation">Evidence Generation</h3>
+                    <p data-lang-key="evidence_generation_desc">Automatic generation of court-admissible evidence with timestamps, coordinates, and legal documentation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-lang-key="demo_title">See Bhushuraksha AI in Action</h2>
+                <p data-lang-key="demo_subtitle">Experience the power of AI-driven land encroachment detection</p>
+            </div>
+            <div class="demo-content">
+                <div class="demo-interface">
+                    <div class="demo-header">
+                        <div class="demo-controls">
+                            <div class="control active"></div>
+                            <div class="control"></div>
+                            <div class="control"></div>
+                        </div>
+                        <span data-lang-key="dashboard_title">Bhushuraksha AI Dashboard</span>
+                    </div>
+                    <div class="demo-screen">
+                        <div class="map-container">
+                            <div class="map-overlay">
+                                <div class="detection-alert">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span data-lang-key="encroachment_detected">Encroachment Detected</span>
+                                </div>
+                                <div class="coordinates">
+                                    <span>Lat: 22.7196° N</span>
+                                    <span>Long: 75.8577° E</span>
+                                </div>
+                            </div>
+                            <div class="scan-animation"></div>
+                        </div>
+                        <div class="demo-sidebar">
+                            <div class="alert-item active">
+                                <div class="alert-status danger"></div>
+                                <div class="alert-info">
+                                    <h4 data-lang-key="unauthorized_construction">Unauthorized Construction</h4>
+                                    <p data-lang-key="detected_ago">Detected: 2 hours ago</p>
+                                    <span class="location">Indore, MP</span>
+                                </div>
+                            </div>
+                            <div class="alert-item">
+                                <div class="alert-status warning"></div>
+                                <div class="alert-info">
+                                    <h4 data-lang-key="land_use_change">Land Use Change</h4>
+                                    <p data-lang-key="detected_ago">Detected: 5 hours ago</p>
+                                    <span class="location">Bhopal, MP</span>
+                                </div>
+                            </div>
+                            <div class="alert-item">
+                                <div class="alert-status success"></div>
+                                <div class="alert-info">
+                                    <h4 data-lang-key="resolved_case">Resolved Case</h4>
+                                    <p data-lang-key="resolved_ago">Resolved: 1 day ago</p>
+                                    <span class="location">Gwalior, MP</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-features">
+                    <div class="demo-feature">
+                        <i class="fas fa-eye"></i>
+                        <h4 data-lang-key="real_time_detection">Real-time Detection</h4>
+                        <p data-lang-key="real_time_detection_desc">Continuous monitoring with instant alerts</p>
+                    </div>
+                    <div class="demo-feature">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h4 data-lang-key="precise_location">Precise Location</h4>
+                        <p data-lang-key="precise_location_desc">Accurate GPS coordinates and mapping</p>
+                    </div>
+                    <div class="demo-feature">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h4 data-lang-key="detailed_reports">Detailed Reports</h4>
+                        <p data-lang-key="detailed_reports_desc">Comprehensive documentation and evidence</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bhushuraksha Result Viewer (Improved: Show Fetched Images & Anomalies) -->
+    <section id="result-viewer" class="result-viewer">
+        <div class="container">
+            <div id="bhushuraksha-result">
+                <h2 data-lang-key="detection_title">🛰️ Illegal Construction Detection</h2>
+                <form id="fetch-form" style="margin-bottom: 20px;">
+                    <label for="start_date" data-lang-key="start_date">Start Date (YYYY-MM-DD):</label>
+                    <input type="text" id="start_date" name="start_date" placeholder="e.g., 2025-07-01" required>
+                    <label for="end_date" data-lang-key="end_date">End Date (YYYY-MM-DD):</label>
+                    <input type="text" id="end_date" name="end_date" placeholder="e.g., 2025-07-20" required>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-download"></i>
+                        <span data-lang-key="fetch_images">Fetch Images</span>
+                    </button>
+                </form>
+                <button id="fetch-detection-btn" class="btn btn-primary" disabled>
+                    <i class="fas fa-search"></i>
+                    <span data-lang-key="run_detection">Run Detection</span>
+                </button>
+                <!-- New: Fetched Images Gallery -->
+                <div id="fetched-images-gallery" style="display: flex; flex-wrap: wrap; gap: 20px; margin: 20px 0;">
+                    <!-- Dynamically populated -->
+                </div>
+                <!-- New: Anomaly Images Section -->
+                <div id="anomaly-images" style="display: none; margin-top: 20px;">
+                    <h3 data-lang-key="anomaly_images">Detected Anomaly Images</h3>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <!-- Dynamically add <img> for mask_path -->
+                    </div>
+                </div>
+                <h3 style="margin-top: 20px;" data-lang-key="detection_result">📄 Detection Result (JSON)</h3>
+                <pre id="output" style="background: #fff; padding: 15px; border: 1px solid #ccc; overflow-x: auto;"></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-lang-key="contact_title">Get Started with Bhushuraksha AI</h2>
+                <p data-lang-key="contact_subtitle">Ready to protect your land with advanced AI technology? Contact us today.</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4 data-lang-key="email_us">Email Us</h4>
+                            <p>info@bhushuraksha.ai</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4 data-lang-key="call_us">Call Us</h4>
+                            <p>+91 86430 99498</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4 data-lang-key="visit_us">Visit Us</h4>
+                            <p>SGSITS Indore, Madhya Pradesh, India</p>
+                        </div>
+                    </div>
+                </div>
+                <form id="contact-form" class="contact-form">
+                    <div class="form-group">
+                        <input type="text" name="name" placeholder="Your Name" required aria-label="Your Name">
+                        <input type="email" name="email" placeholder="Your Email" required aria-label="Your Email">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="organization" placeholder="Organization" required aria-label="Organization">
+                        <input type="tel" name="phone" placeholder="Phone Number" required aria-label="Phone Number">
+                    </div>
+                    <div class="form-group">
+                        <select name="service" required aria-label="Select Service">
+                            <option value="">Select Service</option>
+                            <option value="government">Government Agency</option>
+                            <option value="private">Private Organization</option>
+                            <option value="individual">Individual Property Owner</option>
+                            <option value="legal">Legal Authority</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" placeholder="Tell us about your requirements" rows="4" required aria-label="Message"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Bhushuraksha AI</span>
+                    </div>
+                    <p>Protecting land rights with advanced AI technology. Comprehensive encroachment detection and prevention system.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><a href="#">Government Agencies</a></li>
+                        <li><a href="#">Property Owners</a></li>
+                        <li><a href="#">Legal Authorities</a></li>
+                        <li><a href="#">Real Estate</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Technology</h4>
+                    <ul>
+                        <li><a href="#">AI Detection</a></li>
+                        <li><a href="#">Satellite Monitoring</a></li>
+                        <li><a href="#">Legal Validation</a></li>
+                        <li><a href="#">Reporting System</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Bhushuraksha AI. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/script.js"></script>
+    <script>
+        const socket = io();  // SocketIO for real-time
+
+        // Language Management: Fetch and apply translations
+        async function loadTranslations(lang = 'en') {
+            try {
+                const res = await fetch(`/api/translations?lang=${lang}`);
+                const translations = await res.json();
+                document.querySelectorAll('[data-lang-key]').forEach(el => {
+                    const key = el.getAttribute('data-lang-key');
+                    if (translations[key]) el.textContent = translations[key];
+                });
+            } catch (err) {
+                console.error('Translation error:', err);
+            }
+        }
+
+        document.getElementById('language-toggle').addEventListener('change', function() {
+            const lang = this.value;
+            loadTranslations(lang);
+            const currentPath = window.location.pathname.replace(/^\/(en|hi)\//, '/');
+            window.location.href = '/' + lang + currentPath;
+        });
+
+        // Smooth Scroll Function for Buttons
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Real-Time Hero Stats & Alerts via SocketIO
+        socket.on('connect', () => console.log('SocketIO connected'));
+        socket.on('new_detection', data => {
+            document.getElementById('alerts').textContent = parseInt(document.getElementById('alerts').textContent) + 1 + ' Active';
+            alert(data.message);  // Or custom notification UI
+        });
+
+        async function loadHeroStats() {
+            try {
+                const res = await fetch('/api/dashboard_stats');
+                const data = await res.json();
+                animateStat('accuracy', 95);
+                animateStat('monitoring', 24);
+                document.getElementById('alerts').textContent = data.pending_alerts + ' Active';
+            } catch (err) {
+                console.error('Stats error:', err);
+            }
+        }
+
+        function animateStat(id, target) {
+            let count = 0;
+            const el = document.getElementById(id);
+            const isPercent = target.toString().includes('%');
+            const interval = setInterval(() => {
+                count += Math.ceil(target / 20);
+                el.textContent = (count > target ? target : count) + (isPercent ? '%' : '');
+                if (count >= target) clearInterval(interval);
+            }, 50);
+        }
+
+        // Mini-Map in Hero
+        function initMiniMap() {
+            const map = L.map('hero-mini-map', { zoomControl: false }).setView([22.7196, 75.8577], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            fetch('/api/detections.geojson')
+                .then(res => res.json())
+                .then(data => L.geoJSON(data).addTo(map));
+        }
+
+        // Contact Form with Validation & Feedback
+        document.getElementById('contact-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            if (!data.email.includes('@')) {
+                alert('Invalid email');
+                return;
+            }
+            try {
+                const res = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    alert('Message sent successfully!');
+                    e.target.reset();  // Clear form
+                } else {
+                    alert('Error sending message.');
+                }
+            } catch (err) {
+                alert('Network error: ' + err.message);
+            }
+        });
+
+        // Improved Result Viewer: Fetch/Display All Images & Anomalies
+        const fetchForm = document.getElementById('fetch-form');
+        const detectionBtn = document.getElementById('fetch-detection-btn');
+        const gallery = document.getElementById('fetched-images-gallery');
+        const anomalySection = document.getElementById('anomaly-images');
+        const outputPre = document.getElementById('output');
+
+        async function loadFetchedImages() {
+            try {
+                const res = await fetch('/api/images');
+                const data = await res.json();
+                gallery.innerHTML = '';  // Clear
+                data.images.forEach(img => {
+                    const div = document.createElement('div');
+                    div.style.flex = '1';
+                    div.innerHTML = `
+                        <h3>${img.tag === 'manual_old' ? 'Previous' : 'Present'} Image (${img.timestamp})</h3>
+                        <img src="data:image/png;base64,${img.display_image}" style="width: 100%; border: 2px solid #555; border-radius: 5px;" alt="${img.tag} Image" loading="lazy">
+                    `;
+                    gallery.appendChild(div);
+                });
+                detectionBtn.disabled = data.images.length < 2;  // Enable if 2+ images
+            } catch (err) {
+                console.error('Error loading images:', err);
+            }
+        }
+
+        fetchForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            try {
+                const res = await fetch('/api/fetch/manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    alert('Images fetched successfully!');
+                    loadFetchedImages();  // Refresh gallery
+                } else {
+                    alert('Error fetching images.');
+                }
+            } catch (err) {
+                alert('Network error: ' + err.message);
+            }
+        });
+
+        detectionBtn.addEventListener('click', async () => {
+            try {
+                const res = await fetch('/api/detect');
+                const data = await res.json();
+                outputPre.textContent = JSON.stringify(data, null, 2);
+                if (data.detected) {
+                    // Display anomaly mask
+                    anomalySection.style.display = 'block';
+                    const imgDiv = document.createElement('div');
+                    imgDiv.style.flex = '1';
+                    imgDiv.innerHTML = `
+                        <h4>Anomaly Mask</h4>
+                        <img src="${data.mask_path}" style="width: 100%; border: 2px solid #f00; border-radius: 5px;" alt="Anomaly Mask" loading="lazy">
+                    `;
+                    anomalySection.querySelector('div').appendChild(imgDiv);
+                }
+            } catch (err) {
+                alert('Detection error: ' + err.message);
+            }
+        });
+
+        // Load on page ready
+        loadTranslations();  // Default en
+        loadHeroStats();
+        initMiniMap();
+        loadFetchedImages();  // Load any existing images
+        socket.emit('ping');  // Test connection
+    </script>
+</body>
+</html>

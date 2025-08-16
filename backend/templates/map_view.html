@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhushuraksha AI - Interactive GIS Map</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/map.css">
+    <script src="https://kit.fontawesome.com/1234567890.js" crossorigin="anonymous"></script>
+    <!-- Internal CSS -->
+    <style>
+        /* General styling */
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background-color: #f5f6fa;
+          margin: 0;
+          padding: 0;
+          color: #2f3640;
+        }
+
+        /* Navbar */
+        .navbar {
+          background-color: #192a56;
+          color: white;
+          padding: 10px 20px;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+        }
+        .nav-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .nav-logo {
+          font-size: 1.6rem;
+          color: #f5f6fa;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+        }
+        .nav-logo i {
+          margin-right: 10px;
+          color: #00a8ff;
+        }
+        .nav-menu {
+          list-style: none;
+          display: flex;
+          gap: 15px;
+          margin: 0;
+          padding: 0;
+        }
+        .nav-menu li a {
+          color: white;
+          text-decoration: none;
+          font-weight: 500;
+          padding: 6px 8px;
+          border-radius: 4px;
+          transition: background-color 0.3s ease;
+        }
+        .nav-menu li a:hover {
+          background-color: #273c75;
+        }
+        .nav-toggle {
+          display: none;
+          flex-direction: column;
+          cursor: pointer;
+        }
+        .nav-toggle span {
+          background-color: white;
+          height: 3px;
+          width: 25px;
+          margin: 4px 0;
+          border-radius: 2px;
+        }
+
+        /* Cards */
+        .card {
+          border-radius: 8px;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+          border: none;
+        }
+        .card-title {
+          color: #192a56;
+          font-weight: bold;
+        }
+        .card-text {
+          color: #718093;
+        }
+
+        /* Buttons */
+        .btn-primary {
+          background-color: #192a56;
+          border: none;
+          border-radius: 6px;
+          padding: 10px 20px;
+          color: #f5f6fa;
+          transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+          background-color: #273c75;
+        }
+        .btn-secondary {
+          background-color: #00a8ff;
+          border: none;
+          border-radius: 6px;
+          padding: 10px 20px;
+          color: white;
+          transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+          background-color: #0097e6;
+        }
+
+        /* Responsive Grid */
+        .container {
+          max-width: 1200px;
+          margin: 20px auto;
+          padding: 0 15px;
+        }
+        .row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+        }
+        .col-md-4, .col-md-6, .col-md-3, .col-12 {
+          box-sizing: border-box;
+          flex-grow: 1;
+        }
+        .col-md-4 { flex-basis: 32%; }
+        .col-md-6 { flex-basis: 48%; }
+        .col-md-3 { flex-basis: 23%; }
+        .col-12 { flex-basis: 100%; }
+
+        /* Tables */
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+        }
+        thead {
+          background-color: #192a56;
+          color: white;
+        }
+        thead th {
+          padding: 12px 10px;
+          text-align: left;
+        }
+        tbody td {
+          padding: 10px;
+          border: 1px solid #ddd;
+        }
+
+        /* Fetched Images */
+        #fetched-images-gallery, #anomaly-images-gallery {
+          display: flex;
+          gap: 20px;
+          flex-wrap: wrap;
+        }
+        #fetched-images-gallery div, #anomaly-images-gallery div {
+          flex: 1 1 calc(25% - 20px);
+          min-width: 180px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          overflow: hidden;
+          padding: 10px;
+          background-color: white;
+        }
+        #fetched-images-gallery img, #anomaly-images-gallery img {
+          width: 100%;
+          display: block;
+          border-radius: 5px;
+          object-fit: cover;
+        }
+
+        /* Footer */
+        .footer {
+          background-color: #192a56;
+          color: white;
+          padding: 30px 0;
+          margin-top: 40px;
+        }
+        .footer a {
+          color: #00a8ff;
+          text-decoration: none;
+        }
+        .footer-logo i {
+          color: #00a8ff;
+          margin-right: 8px;
+          font-size: 1.25rem;
+        }
+        .social-links a {
+          margin-right: 15px;
+          font-size: 1.2rem;
+          color: #dcdde1;
+        }
+        .social-links a:hover {
+          color: #00a8ff;
+        }
+        .footer-bottom {
+          border-top: 1px solid #273c75;
+          margin-top: 20px;
+          padding-top: 20px;
+          text-align: center;
+          font-size: 0.9rem;
+        }
+        .footer-links a {
+          margin: 0 10px;
+          color: #7f8fa6;
+        }
+        .footer-links a:hover {
+          color: #00a8ff;
+        }
+
+        /* Fade-in Animation */
+        .fade-in {
+          animation: fadeIn 1s ease-in forwards;
+          opacity: 0;
+        }
+        @keyframes fadeIn {
+          to {
+            opacity: 1;
+          }
+        }
+
+        /* Language Select styling */
+        .form-select {
+          background-color: #273c75;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          padding: 5px 10px;
+        }
+        .form-select option {
+          background-color: white;
+          color: black;
+        }
+
+        /* Alert status colors */
+        .alert-status.danger {
+          width: 15px;
+          height: 15px;
+          background-color: #e84118;
+          border-radius: 50%;
+          display: inline-block;
+        }
+        .alert-status.warning {
+          width: 15px;
+          height: 15px;
+          background-color: #fbc531;
+          border-radius: 50%;
+          display: inline-block;
+        }
+        .alert-status.success {
+          width: 15px;
+          height: 15px;
+          background-color: #4cd137;
+          border-radius: 50%;
+          display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fas fa-satellite"></i> Bhushuraksha AI
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="map_view.html">Map View</a></li>
+                <li><a href="grievance_form.html">Grievance Portal</a></li>
+                <li><a href="report_viewer.html">Reports</a></li>
+                <li><a href="admin_dashboard.html">Admin Dashboard</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html">Register</a></li>
+                <li>
+                    <select id="language-toggle" class="form-select" style="width: 120px;" aria-label="Language selection">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                    </select>
+                </li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Map View Section -->
+    <section id="map-view" class="result-viewer">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2><i class="fas fa-map"></i> Interactive GIS Map</h2>
+                <p>Visualize real-time land encroachment detections in Scheme 78, Indore</p>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <label for="ward-filter" class="form-label">Select Ward</label>
+                    <select id="ward-filter" class="form-select" aria-label="Ward filter">
+                        <option value="">All Wards</option>
+                        <option value="1">Ward 1</option>
+                        <option value="2">Ward 2</option>
+                        <option value="3">Ward 3</option>
+                        <option value="4">Ward 4</option>
+                        <option value="5">Ward 5</option>
+                        <option value="6">Ward 6</option>
+                        <option value="7">Ward 7</option>
+                        <option value="8">Ward 8</option>
+                        <option value="9">Ward 9</option>
+                        <option value="10">Ward 10</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="start-date" class="form-label">Start Date</label>
+                    <input type="date" id="start-date" class="form-control" aria-label="Start date">
+                </div>
+                <div class="col-md-3">
+                    <label for="end-date" class="form-label">End Date</label>
+                    <input type="date" id="end-date" class="form-control" aria-label="End date">
+                </div>
+                <div class="col-md-3">
+                    <button id="apply-filters" class="btn btn-primary mt-4"><i class="fas fa-filter"></i> Apply Filters</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="fade-in">
+                        <h3><i class="fas fa-map-marked-alt"></i> Detection Map</h3>
+                        <div id="gis-map" style="height: 500px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="fade-in">
+                        <h3><i class="fas fa-layer-group"></i> Map Layers</h3>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" id="satellite-layer" class="form-check-input" checked aria-label="Toggle satellite layer">
+                            <label for="satellite-layer" class="form-check-label">Satellite Imagery</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" id="anomaly-layer" class="form-check-input" checked aria-label="Toggle anomaly layer">
+                            <label for="anomaly-layer" class="form-check-label">Anomaly Masks</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" id="shapefile-layer" class="form-check-input" checked aria-label="Toggle shapefile layer">
+                            <label for="shapefile-layer" class="form-check-label">Ward Boundaries</label>
+                        </div>
+                        <h3><i class="fas fa-bell"></i> Recent Detections</h3>
+                        <div id="detection-list" style="max-height: 300px; overflow-y: auto;">
+                            <div class="alert alert-secondary" role="alert">No detections found.</div>
+                        </div>
+                        <button id="download-geojson" class="btn btn-secondary mt-3"><i class="fas fa-download"></i> Download GeoJSON</button>
+                    </div>
+                </div>
+            </div>
+            <div id="error-message" class="text-danger mt-3" style="display: none;"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <a href="/" class="footer-logo">
+                    <i class="fas fa-satellite"></i> Bhushuraksha AI
+                </a>
+                <p>Protecting land rights with advanced AI technology.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Solutions</h4>
+                <ul>
+                    <li><a href="#">Government Agencies</a></li>
+                    <li><a href="#">Property Owners</a></li>
+                    <li><a href="#">Legal Authorities</a></li>
+                    <li><a href="#">Real Estate</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Technology</h4>
+                <ul>
+                    <li><a href="#">AI Detection</a></li>
+                    <li><a href="#">Satellite Monitoring</a></li>
+                    <li><a href="#">Legal Validation</a></li>
+                    <li><a href="#">Reporting System</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API Reference</a></li>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Support</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <p>&copy; 2025 Bhushuraksha AI. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.2/dist/socket.io.min.js"></script>
+    <script src="/static/js/script.js"></script>
+    <script>
+        // Initialize Leaflet map
+        var map = L.map('gis-map').setView([22.7196, 75.8577], 13);
+        var satelliteLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        var anomalyLayer = L.layerGroup().addTo(map);
+        var shapefileLayer = L.layerGroup().addTo(map);
+
+        // Layer control
+        var baseLayers = { "Satellite Imagery": satelliteLayer };
+        var overlayLayers = {
+            "Anomaly Masks": anomalyLayer,
+            "Ward Boundaries": shapefileLayer
+        };
+        L.control.layers(baseLayers, overlayLayers).addTo(map);
+
+        // Toggle layers
+        document.getElementById('satellite-layer').addEventListener('change', function() {
+            if (this.checked) map.addLayer(satelliteLayer);
+            else map.removeLayer(satelliteLayer);
+        });
+        document.getElementById('anomaly-layer').addEventListener('change', function() {
+            if (this.checked) map.addLayer(anomalyLayer);
+            else map.removeLayer(anomalyLayer);
+        });
+        document.getElementById('shapefile-layer').addEventListener('change', function() {
+            if (this.checked) map.addLayer(shapefileLayer);
+            else map.removeLayer(shapefileLayer);
+        });
+
+        // Initialize Socket.IO for real-time alerts
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('new_detection', function(data) {
+            alert('New Detection: ' + data.message);
+            anomalyLayer.clearLayers();
+            L.geoJSON(data.geojson, {
+                onEachFeature: function(feature, layer) {
+                    layer.bindTooltip(`Ward: ${feature.properties.ward}<br>Date: ${feature.properties.date}<br>Confidence: ${feature.properties.confidence}`);
+                }
+            }).addTo(anomalyLayer);
+            updateDetectionList();
+        });
+
+        // Fetch and update detections
+        function updateDetectionList() {
+            const ward = document.getElementById('ward-filter').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            fetch(`/api/detections?ward=${ward}&start_date=${startDate}&end_date=${endDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    anomalyLayer.clearLayers();
+                    L.geoJSON(data.geojson, {
+                        onEachFeature: function(feature, layer) {
+                            layer.bindTooltip(`Ward: ${feature.properties.ward}<br>Date: ${feature.properties.date}<br>Confidence: ${feature.properties.confidence}`);
+                        }
+                    }).addTo(anomalyLayer);
+                    const detectionList = document.getElementById('detection-list');
+                    detectionList.innerHTML = data.detections.map(d => `
+                        <div class="alert alert-${d.severity}" role="alert">
+                            <strong>Ward ${d.ward}</strong>: ${d.location}<br>
+                            Coordinates: ${d.coordinates}<br>
+                            Date: ${d.date}<br>
+                            Confidence: ${d.confidence}
+                        </div>
+                    `).join('') || '<div class="alert alert-secondary" role="alert">No detections found.</div>';
+                })
+                .catch(error => {
+                    document.getElementById('error-message').textContent = 'Error fetching detections. Please try again.';
+                    document.getElementById('error-message').style.display = 'block';
+                });
+        }
+
+        // Apply filters
+        document.getElementById('apply-filters').addEventListener('click', updateDetectionList);
+
+        // Download GeoJSON
+        document.getElementById('download-geojson').addEventListener('click', function() {
+            const ward = document.getElementById('ward-filter').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            window.location.href = `/api/detections/download?ward=${ward}&start_date=${startDate}&end_date=${endDate}`;
+        });
+
+        // Language toggle
+        document.getElementById('language-toggle').addEventListener('change', function() {
+            fetch('/set_language', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language: this.value })
+            }).then(() => location.reload());
+        });
+
+        // Initial load of detections
+        updateDetectionList();
+    </script>
+</body>
+</html>

@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhushuraksha AI - Citizen Grievance Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/map.css">
+    <script src="https://kit.fontawesome.com/1234567890.js" crossorigin="anonymous"></script>
+    <!-- Internal Attractive Animated CSS -->
+    <style>
+        /* General Styling */
+        body {
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #f5f6fa 0%, #e9ecef 100%);
+          margin: 0;
+          padding: 0;
+          color: #2f3640;
+          overflow-x: hidden;
+        }
+
+        /* Navbar with Animation */
+        /* .navbar {
+          background-color: #192a56;
+          color: white;
+          padding: 15px 30px;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          animation: slideDown 0.8s ease forwards;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        } */
+         /* Navbar */
+        .navbar {
+          background-color: #192a56;
+          color: white;
+          padding: 10px 20px;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+        }
+        .nav-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .nav-logo {
+          font-size: 1.6rem;
+          color: #f5f6fa;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+        }
+        .nav-logo i {
+          margin-right: 10px;
+          color: #00a8ff;
+        }
+        .nav-menu {
+          list-style: none;
+          display: flex;
+          gap: 15px;
+          margin: 0;
+          padding: 0;
+        }
+        .nav-menu li a {
+          color: white;
+          text-decoration: none;
+          font-weight: 500;
+          padding: 6px 8px;
+          border-radius: 4px;
+          transition: background-color 0.3s ease;
+        }
+        .nav-menu li a:hover {
+          background-color: #273c75;
+        }
+        .nav-toggle {
+          display: none;
+          flex-direction: column;
+          cursor: pointer;
+        }
+        .nav-toggle span {
+          background-color: white;
+          height: 3px;
+          width: 25px;
+          margin: 4px 0;
+          border-radius: 2px;
+        }
+
+
+        @keyframes slideDown {
+          0% {opacity: 0; transform: translateY(-50px);}
+          100% {opacity: 1; transform: translateY(0);}
+        }
+
+        /* Contact/Grievance Section */
+        .contact {
+          padding: 60px 0;
+          background-color: #fff;
+          animation: fadeIn 1.2s ease forwards;
+          box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+          margin-bottom: 50px;
+          text-align: center;
+        }
+        .section-header h2 {
+          font-size: 2.8rem;
+          color: #192a56;
+          animation: fadeInDown 1s ease forwards;
+          position: relative;
+          text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        .section-header p {
+          font-size: 1.3rem;
+          color: #718093;
+          margin-top: 15px;
+          animation: fadeInUp 1s ease forwards 0.3s;
+        }
+
+        /* Benefits/Guidelines Grid */
+        .benefits-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 30px;
+          padding: 20px 40px;
+        }
+        .benefit-card {
+          background: linear-gradient(145deg, #f1f6f9 0%, #e9ecef 100%);
+          border-radius: 15px;
+          padding: 25px;
+          box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+          transition: transform 0.4s ease, box-shadow 0.4s ease;
+          animation: cardPulse 2s infinite alternate;
+        }
+        .benefit-card:hover {
+          transform: translateY(-12px) scale(1.03);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+          animation-play-state: paused;
+        }
+        .benefit-number {
+          font-size: 3.5rem;
+          font-weight: 900;
+          color: #192a56;
+          margin-bottom: 15px;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .benefit-card h3 {
+          font-size: 1.7rem;
+          margin-bottom: 12px;
+          color: #192a56;
+        }
+        .benefit-card p {
+          font-size: 1.1rem;
+          color: #4b6584;
+        }
+
+        /* Form Elements */
+        .form-group label {
+          font-weight: 700;
+          color: #192a56;
+          animation: fadeInLeft 0.8s ease forwards;
+        }
+        .form-control, .form-select {
+          border-radius: 10px;
+          border: 1px solid #ced4da;
+          padding: 12px 18px;
+          font-size: 1.1rem;
+          transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+          border-color: #00a8ff;
+          box-shadow: 0 0 12px rgba(0, 168, 255, 0.4);
+          transform: scale(1.02);
+          outline: none;
+        }
+
+        .btn-primary {
+          background-color: #192a56;
+          border: none;
+          border-radius: 10px;
+          padding: 14px 28px;
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #f5f6fa;
+          cursor: pointer;
+          transition: background-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .btn-primary:hover {
+          background-color: #273c75;
+          transform: scale(1.05);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+          background-color: #00a8ff;
+          border: none;
+          border-radius: 10px;
+          padding: 14px 28px;
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: white;
+          cursor: pointer;
+          transition: background-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .btn-secondary:hover {
+          background-color: #0097e6;
+          transform: scale(1.05);
+          box-shadow: 0 8px 20px rgba(0,168,255,0.3);
+        }
+
+        /* Animations */
+        .fade-in {
+          opacity: 0;
+          animation: fadeIn 1s ease forwards;
+        }
+        @keyframes fadeIn {
+          to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+          0% { opacity: 0; transform: translateY(-40px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+          0% { opacity: 0; transform: translateY(40px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInLeft {
+          0% { opacity: 0; transform: translateX(-40px); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes cardPulse {
+          0% { box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
+          100% { box-shadow: 0 15px 25px rgba(0,0,0,0.1); }
+        }
+
+        .text-danger {
+          font-weight: 700;
+          color: #e84118;
+          animation: shake 0.6s linear;
+        }
+
+        .text-success {
+          font-weight: 700;
+          color: #4cd137;
+          animation: bounce 0.7s ease-in-out;
+        }
+
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          20%, 60% { transform: translateX(-10px); }
+          40%, 80% { transform: translateX(10px); }
+        }
+
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+
+        /* Map container styling */
+        #grievance-map {
+          border-radius: 15px;
+          box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+          margin-top: 25px;
+          transition: box-shadow 0.4s ease, transform 0.4s ease;
+        }
+        #grievance-map:hover {
+          box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+          transform: scale(1.02);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+          .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+          }
+          .benefits-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        /* Footer Styling - Systematic and Animated */
+        .footer {
+          background: linear-gradient(135deg, #192a56 0%, #273c75 100%);
+          color: white;
+          padding: 40px 0 10px;
+          position: relative;
+          overflow: hidden;
+        }
+        .footer:before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+          animation: footerGlow 3s infinite alternate;
+        }
+        @keyframes footerGlow {
+          0% { opacity: 0.3; }
+          100% { opacity: 0.6; }
+        }
+        .footer-content {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 30px;
+          max-width: 1200px;
+          margin: 0 auto 30px;
+          padding: 0 20px;
+        }
+        .footer-section {
+          animation: fadeInUp 1s ease forwards;
+        }
+        .footer-logo {
+          font-size: 1.8rem;
+          color: #f5f6fa;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          margin-bottom: 15px;
+        }
+        .footer-logo i {
+          margin-right: 12px;
+          font-size: 2rem;
+          color: #00a8ff;
+          animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .footer-section h4 {
+          font-size: 1.4rem;
+          margin-bottom: 15px;
+          color: #dcdde1;
+        }
+        .footer-section ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .footer-section li a {
+          color: #a4b0be;
+          text-decoration: none;
+          display: block;
+          margin-bottom: 10px;
+          transition: color 0.3s ease, padding-left 0.3s ease;
+        }
+        .footer-section li a:hover {
+          color: #00a8ff;
+          padding-left: 5px;
+        }
+        .social-links a {
+          margin-right: 18px;
+          font-size: 1.4rem;
+          color: #dcdde1;
+          transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .social-links a:hover {
+          color: #00a8ff;
+          transform: rotate(360deg);
+        }
+        .footer-bottom {
+          border-top: 1px solid rgba(255,255,255,0.1);
+          padding-top: 25px;
+          text-align: center;
+          font-size: 1rem;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 20px;
+        }
+        .footer-links {
+          margin-top: 10px;
+        }
+        .footer-links a {
+          color: #a4b0be;
+          text-decoration: none;
+          margin: 0 15px;
+          transition: color 0.3s ease;
+        }
+        .footer-links a:hover {
+          color: #00a8ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-logo">
+            <i class="fas fa-satellite"></i> Bhushuraksha AI
+        </a>
+        <ul class="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="map_view.html">Map View</a></li>
+            <li><a href="grievance_form.html">Grievance Portal</a></li>
+            <li><a href="report_viewer.html">Reports</a></li>
+            <li><a href="admin_dashboard.html">Admin Dashboard</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="register.html">Register</a></li>
+            <li>
+                <select id="language-toggle" class="form-select" style="width: 120px;" aria-label="Language selection">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                </select>
+            </li>
+        </ul>
+        <div class="nav-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+
+    <!-- Grievance Form Section -->
+    <section id="grievance" class="contact">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2><i class="fas fa-exclamation-circle"></i> Citizen Grievance Portal</h2>
+                <p>Report suspected land encroachments with geolocation and supporting evidence</p>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact-form fade-in">
+                        <form id="grievance-form">
+                            <div class="form-group mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" id="name" class="form-control" placeholder="Your Name" required aria-label="Your name">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" class="form-control" placeholder="Your Email" required aria-label="Your email">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="ward" class="form-label">Select Ward in Scheme 78</label>
+                                <select id="ward" class="form-select" required aria-label="Ward selection">
+                                    <option value="">Select Ward</option>
+                                    <option value="1">Ward 1</option>
+                                    <option value="2">Ward 2</option>
+                                    <option value="3">Ward 3</option>
+                                    <option value="4">Ward 4</option>
+                                    <option value="5">Ward 5</option>
+                                    <option value="6">Ward 6</option>
+                                    <option value="7">Ward 7</option>
+                                    <option value="8">Ward 8</option>
+                                    <option value="9">Ward 9</option>
+                                    <option value="10">Ward 10</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="location" class="form-label">Geolocation (Latitude, Longitude)</label>
+                                <input type="text" id="location" class="form-control" placeholder="e.g., 22.7196, 75.8577" required aria-label="Geolocation coordinates">
+                                <button type="button" id="pick-location-btn" class="btn btn-secondary mt-2"><i class="fas fa-map-marker-alt"></i> Pick on Map</button>
+                                <button type="button" id="auto-detect-btn" class="btn btn-secondary mt-2"><i class="fas fa-location-arrow"></i> Auto-Detect Location</button>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="image" class="form-label">Upload Image (Optional)</label>
+                                <input type="file" id="image" class="form-control" accept="image/*" aria-label="Upload image">
+                                <div id="image-preview" style="margin-top: 10px; display: none;">
+                                    <img id="preview-img" src="" alt="Image Preview" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea id="description" class="form-control" rows="5" placeholder="Describe the suspected encroachment" required aria-label="Encroachment description"></textarea>
+                            </div>
+                            <div id="error-message" class="text-danger mb-3" style="display: none;"></div>
+                            <div id="success-message" class="text-success mb-3" style="display: none;">Grievance submitted successfully!</div>
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-paper-plane"></i> Submit Grievance</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact-info fade-in">
+                        <div class="contact-item">
+                            <h4>Geolocation Map</h4>
+                            <div id="grievance-map" style="height: 300px;"></div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <h4>Track Your Submission</h4>
+                                <p>Login to view the status of your grievance in the public dashboard.</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <h4>Secure & Compliant</h4>
+                                <p>Your data is encrypted and complies with Indian data protection laws.</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div>
+                                <h4>Mobile-Friendly</h4>
+                                <p>Submit grievances on the go with our responsive interface.</p>
+                            </div>
+                        </div>
+                        <!-- New Feature: Grievance Status Checker -->
+                        <div class="contact-item mt-4">
+                            <h4>Check Grievance Status</h4>
+                            <input type="text" id="grievance-id" class="form-control mb-2" placeholder="Enter Grievance ID" aria-label="Grievance ID">
+                            <button type="button" id="check-status-btn" class="btn btn-primary w-100"><i class="fas fa-search"></i> Check Status</button>
+                            <div id="status-result" class="mt-3" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Guidelines Section -->
+    <section id="guidelines" class="benefits">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2><i class="fas fa-book"></i> Submission Guidelines</h2>
+                <p>Follow these steps to ensure your grievance is processed efficiently</p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card fade-in">
+                    <span class="benefit-number">01</span>
+                    <h3>Provide Accurate Details</h3>
+                    <p>Enter correct ward and geolocation coordinates for faster verification.</p>
+                </div>
+                <div class="benefit-card fade-in">
+                    <span class="benefit-number">02</span>
+                    <h3>Include Evidence</h3>
+                    <p>Upload clear images of the suspected encroachment to support your report.</p>
+                </div>
+                <div class="benefit-card fade-in">
+                    <span class="benefit-number">03</span>
+                    <h3>Detailed Description</h3>
+                    <p>Describe the issue clearly, including dates, structures, or activities observed.</p>
+                </div>
+                <div class="benefit-card fade-in">
+                    <span class="benefit-number">04</span>
+                    <h3>Track Progress</h3>
+                    <p>Login to the public dashboard to monitor the status of your submission.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <a href="/" class="footer-logo">
+                    <i class="fas fa-satellite"></i> Bhushuraksha AI
+                </a>
+                <p>Protecting land rights with advanced AI technology.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Solutions</h4>
+                <ul>
+                    <li><a href="#">Government Agencies</a></li>
+                    <li><a href="#">Property Owners</a></li>
+                    <li><a href="#">Legal Authorities</a></li>
+                    <li><a href="#">Real Estate</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Technology</h4>
+                <ul>
+                    <li><a href="#">AI Detection</a></li>
+                    <li><a href="#">Satellite Monitoring</a></li>
+                    <li><a href="#">Legal Validation</a></li>
+                    <li><a href="#">Reporting System</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API Reference</a></li>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Support</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <p>&copy; 2025 Bhushuraksha AI. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/static/js/script.js"></script>
+    <script>
+        // Initialize Leaflet map
+        var map = L.map('grievance-map').setView([22.7196, 75.8577], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Add marker for geolocation
+        marker = null;
+        map.on('click', function(e) {
+            const lat = e.latlng.lat.toFixed(4);
+            const lng = e.latlng.lng.toFixed(4);
+            document.getElementById('location').value = `${lat}, ${lng}`;
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([lat, lng]).addTo(map);
+        });
+
+        // Language toggle
+        document.getElementById('language-toggle').addEventListener('change', function() {
+            fetch('/set_language', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language: this.value })
+            }).then(() => location.reload());
+        });
+
+        // Grievance form submission
+        document.getElementById('grievance-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('ward', document.getElementById('ward').value);
+            formData.append('location', document.getElementById('location').value);
+            formData.append('description', document.getElementById('description').value);
+            const imageFile = document.getElementById('image').files[0];
+            if (imageFile) formData.append('image', imageFile);
+
+            fetch('/api/grievance', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('success-message').style.display = 'block';
+                    document.getElementById('error-message').style.display = 'none';
+                    document.getElementById('grievance-form').reset();
+                    if (marker) map.removeLayer(marker);
+                } else {
+                    document.getElementById('error-message').textContent = data.message || 'Error submitting grievance';
+                    document.getElementById('error-message').style.display = 'block';
+                    document.getElementById('success-message').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                document.getElementById('error-message').textContent = 'Error submitting grievance. Please try again.';
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('success-message').style.display = 'none';
+            });
+        });
+
+        // Pick location button
+        document.getElementById('pick-location-btn').addEventListener('click', function() {
+            map.setView([22.7196, 75.8577], 15);
+            alert('Click on the map to select the location of the suspected encroachment.');
+        });
+
+        // Initialize Leaflet map
+        var map = L.map('grievance-map').setView([22.7196, 75.8577], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Add marker for geolocation
+        let marker = null;
+        map.on('click', function(e) {
+            const lat = e.latlng.lat.toFixed(4);
+            const lng = e.latlng.lng.toFixed(4);
+            document.getElementById('location').value = `${lat}, ${lng}`;
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([lat, lng]).addTo(map);
+        });
+
+        // Language toggle
+        document.getElementById('language-toggle').addEventListener('change', function() {
+            fetch('/set_language', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language: this.value })
+            }).then(() => location.reload());
+        });
+
+        // Grievance form submission
+        document.getElementById('grievance-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('ward', document.getElementById('ward').value);
+            formData.append('location', document.getElementById('location').value);
+            formData.append('description', document.getElementById('description').value);
+            const imageFile = document.getElementById('image').files[0];
+            if (imageFile) formData.append('image', imageFile);
+
+            fetch('/api/grievance', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('success-message').style.display = 'block';
+                    document.getElementById('error-message').style.display = 'none';
+                    document.getElementById('grievance-form').reset();
+                    if (marker) map.removeLayer(marker);
+                } else {
+                    document.getElementById('error-message').textContent = data.message || 'Error submitting grievance';
+                    document.getElementById('error-message').style.display = 'block';
+                    document.getElementById('success-message').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                document.getElementById('error-message').textContent = 'Error submitting grievance. Please try again.';
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('success-message').style.display = 'none';
+            });
+        });
+
+        // Pick location button
+        document.getElementById('pick-location-btn').addEventListener('click', function() {
+            map.setView([22.7196, 75.8577], 15);
+            alert('Click on the map to select the location of the suspected encroachment.');
+        });
+
+        // New Feature: Auto-detect Location using Geolocation API
+        document.getElementById('auto-detect-btn').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude.toFixed(4);
+                    const lng = position.coords.longitude.toFixed(4);
+                    document.getElementById('location').value = `${lat}, ${lng}`;
+                    map.setView([lat, lng], 15);
+                    if (marker) map.removeLayer(marker);
+                    marker = L.marker([lat, lng]).addTo(map).bindPopup('Your Location').openPopup();
+                }, error => {
+                    alert('Error getting location: ' + error.message);
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        });
+
+        // New Feature: Image Preview
+        document.getElementById('image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxWidth = '100%';
+                    img.style.borderRadius = '8px';
+                    img.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)';
+                    img.style.marginTop = '10px';
+                    const preview = document.getElementById('image-preview') || document.createElement('div');
+                    preview.id = 'image-preview';
+                    preview.innerHTML = '';
+                    preview.appendChild(img);
+                    e.target.parentNode.appendChild(preview);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // New Feature: Form Validation (Client-side)
+        function validateForm() {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const ward = document.getElementById('ward').value;
+            const location = document.getElementById('location').value.trim();
+            const description = document.getElementById('description').value.trim();
+
+            if (!name || !email || !ward || !location || !description) {
+                alert('Please fill all required fields.');
+                return false;
+            }
+            if (!email.includes('@')) {
+                alert('Invalid email address.');
+                return false;
+            }
+            return true;
+        }
+
+        document.getElementById('grievance-form').addEventListener('submit', function(e) {
+            if (!validateForm()) e.preventDefault();
+            // Proceed with submission as before
+        });
+    </script>
+</body>
+</html>

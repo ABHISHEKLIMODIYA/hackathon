@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhushuraksha AI - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/map.css">
+    <script src="https://kit.fontawesome.com/1234567890.js" crossorigin="anonymous"></script>
+    <!-- Internal CSS -->
+    <style>
+        /* General styling */
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background-color: #f5f6fa;
+          margin: 0;
+          padding: 0;
+          color: #2f3640;
+        }
+
+        /* Navbar */
+        .navbar {
+          background-color: #192a56;
+          color: white;
+          padding: 10px 20px;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+        }
+        .nav-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .nav-logo {
+          font-size: 1.6rem;
+          color: #f5f6fa;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+        }
+        .nav-logo i {
+          margin-right: 10px;
+          color: #00a8ff;
+        }
+        .nav-menu {
+          list-style: none;
+          display: flex;
+          gap: 15px;
+          margin: 0;
+          padding: 0;
+        }
+        .nav-menu li a {
+          color: white;
+          text-decoration: none;
+          font-weight: 500;
+          padding: 6px 8px;
+          border-radius: 4px;
+          transition: background-color 0.3s ease;
+        }
+        .nav-menu li a:hover {
+          background-color: #273c75;
+        }
+        .nav-toggle {
+          display: none;
+          flex-direction: column;
+          cursor: pointer;
+        }
+        .nav-toggle span {
+          background-color: white;
+          height: 3px;
+          width: 25px;
+          margin: 4px 0;
+          border-radius: 2px;
+        }
+
+        /* Cards */
+        .card {
+          border-radius: 8px;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+          border: none;
+        }
+        .card-title {
+          color: #192a56;
+          font-weight: bold;
+        }
+        .card-text {
+          color: #718093;
+        }
+
+        /* Buttons */
+        .btn-primary {
+          background-color: #192a56;
+          border: none;
+          border-radius: 6px;
+          padding: 10px 20px;
+          color: #f5f6fa;
+          transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+          background-color: #273c75;
+        }
+        .btn-secondary {
+          background-color: #00a8ff;
+          border: none;
+          border-radius: 6px;
+          padding: 10px 20px;
+          color: white;
+          transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+          background-color: #0097e6;
+        }
+
+        /* Responsive Grid */
+        .container {
+          max-width: 1200px;
+          margin: 20px auto;
+          padding: 0 15px;
+        }
+        .row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+        }
+        .col-md-4, .col-md-6, .col-md-3, .col-12 {
+          box-sizing: border-box;
+          flex-grow: 1;
+        }
+        .col-md-4 { flex-basis: 32%; }
+        .col-md-6 { flex-basis: 48%; }
+        .col-md-3 { flex-basis: 23%; }
+        .col-12 { flex-basis: 100%; }
+
+        /* Tables */
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+        }
+        thead {
+          background-color: #192a56;
+          color: white;
+        }
+        thead th {
+          padding: 12px 10px;
+          text-align: left;
+        }
+        tbody td {
+          padding: 10px;
+          border: 1px solid #ddd;
+        }
+
+        /* Fetched Images */
+        #fetched-images-gallery, #anomaly-images-gallery {
+          display: flex;
+          gap: 20px;
+          flex-wrap: wrap;
+        }
+        #fetched-images-gallery div, #anomaly-images-gallery div {
+          flex: 1 1 calc(25% - 20px);
+          min-width: 180px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          overflow: hidden;
+          padding: 10px;
+          background-color: white;
+        }
+        #fetched-images-gallery img, #anomaly-images-gallery img {
+          width: 100%;
+          display: block;
+          border-radius: 5px;
+          object-fit: cover;
+        }
+
+        /* Footer */
+        .footer {
+          background-color: #192a56;
+          color: white;
+          padding: 30px 0;
+          margin-top: 40px;
+        }
+        .footer a {
+          color: #00a8ff;
+          text-decoration: none;
+        }
+        .footer-logo i {
+          color: #00a8ff;
+          margin-right: 8px;
+          font-size: 1.25rem;
+        }
+        .social-links a {
+          margin-right: 15px;
+          font-size: 1.2rem;
+          color: #dcdde1;
+        }
+        .social-links a:hover {
+          color: #00a8ff;
+        }
+        .footer-bottom {
+          border-top: 1px solid #273c75;
+          margin-top: 20px;
+          padding-top: 20px;
+          text-align: center;
+          font-size: 0.9rem;
+        }
+        .footer-links a {
+          margin: 0 10px;
+          color: #7f8fa6;
+        }
+        .footer-links a:hover {
+          color: #00a8ff;
+        }
+
+        /* Fade-in Animation */
+        .fade-in {
+          animation: fadeIn 1s ease-in forwards;
+          opacity: 0;
+        }
+        @keyframes fadeIn {
+          to {
+            opacity: 1;
+          }
+        }
+
+        /* Language Select styling */
+        .form-select {
+          background-color: #273c75;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          padding: 5px 10px;
+        }
+        .form-select option {
+          background-color: white;
+          color: black;
+        }
+
+        /* Alert status colors */
+        .alert-status.danger {
+          width: 15px;
+          height: 15px;
+          background-color: #e84118;
+          border-radius: 50%;
+          display: inline-block;
+        }
+        .alert-status.warning {
+          width: 15px;
+          height: 15px;
+          background-color: #fbc531;
+          border-radius: 50%;
+          display: inline-block;
+        }
+        .alert-status.success {
+          width: 15px;
+          height: 15px;
+          background-color: #4cd137;
+          border-radius: 50%;
+          display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fas fa-satellite"></i> Bhushuraksha AI
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="map_view.html">Map View</a></li>
+                <li><a href="grievance_form.html">Grievance Portal</a></li>
+                <li><a href="report_viewer.html">Reports</a></li>
+                <li><a href="admin_dashboard.html">Admin Dashboard</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html">Register</a></li>
+                <li>
+                    <select id="language-toggle" class="form-select" style="width: 120px;" aria-label="Language selection">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                    </select>
+                </li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="result-viewer">
+        <div class="container">
+            <div id="bhushuraksha-result" class="fade-in">
+                <h2><i class="fas fa-tachometer-alt"></i> <span data-lang-key="admin_dashboard">Admin Dashboard</span></h2>
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title" data-lang-key="total_detections">Total Detections</h5>
+                                <p class="card-text display-4" id="total-detections">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title" data-lang-key="pending_alerts">Pending Alerts</h5>
+                                <p class="card-text display-4" id="pending-alerts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title" data-lang-key="resolved_cases">Resolved Cases</h5>
+                                <p class="card-text display-4" id="resolved-cases">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3><i class="fas fa-chart-line"></i> <span data-lang-key="detection_trends">Detection Trends</span></h3>
+                        <canvas id="trend-chart" style="height: 300px;"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <h3><i class="fas fa-map"></i> <span data-lang-key="gis_map">GIS Map</span></h3>
+                        <div id="dashboard-map" style="height: 300px;"></div>
+                    </div>
+                </div>
+                <!-- New: Fetched Images Gallery -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h3><i class="fas fa-images"></i> <span data-lang-key="fetched_images">Fetched Satellite Images</span></h3>
+                        <div id="fetched-images-gallery" style="display: flex; flex-wrap: wrap; gap: 20px;"></div>
+                    </div>
+                </div>
+                <!-- New: Anomaly Images Section -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h3><i class="fas fa-exclamation-triangle"></i> <span data-lang-key="anomaly_images">Detected Anomaly Images</span></h3>
+                        <div id="anomaly-images-gallery" style="display: flex; flex-wrap: wrap; gap: 20px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Alerts Section -->
+    <section id="alerts" class="result-viewer">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2><i class="fas fa-bell"></i> <span data-lang-key="recent_alerts">Recent Alerts</span></h2>
+                <p data-lang-key="view_filter_alerts">View and filter real-time encroachment alerts</p>
+            </div>
+            <div class="fade-in">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <select id="alert-ward-filter" class="form-select" aria-label="Filter by ward">
+                            <option value="">All Wards</option>
+                            <option value="1">Ward 1</option>
+                            <option value="2">Ward 2</option>
+                            <option value="3">Ward 3</option>
+                            <option value="4">Ward 4</option>
+                            <option value="5">Ward 5</option>
+                            <option value="6">Ward 6</option>
+                            <option value="7">Ward 7</option>
+                            <option value="8">Ward 8</option>
+                            <option value="9">Ward 9</option>
+                            <option value="10">Ward 10</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="alert-severity-filter" class="form-select" aria-label="Filter by severity">
+                            <option value="">All Severities</option>
+                            <option value="danger">High</option>
+                            <option value="warning">Medium</option>
+                            <option value="success">Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" id="alert-date-filter" class="form-control" aria-label="Filter by date">
+                    </div>
+                    <div class="col-md-3">
+                        <button id="apply-filters" class="btn btn-primary"><i class="fas fa-filter"></i> Apply Filters</button>
+                    </div>
+                </div>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Ward</th>
+                            <th>Location</th>
+                            <th>Coordinates</th>
+                            <th>Date</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alert-table">
+                        <tr><td colspan="7">No alerts found.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Management Section -->
+    <section id="users" class="result-viewer">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2><i class="fas fa-users"></i> <span data-lang-key="user_management">User Management</span></h2>
+                <p data-lang-key="manage_accounts">Manage admin and field officer accounts</p>
+            </div>
+            <div class="fade-in">
+                <form id="user-form" class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="user-name" class="form-label" data-lang-key="name">Name</label>
+                            <input type="text" id="user-name" class="form-control" placeholder="Enter name" required aria-label="User name">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="user-email" class="form-label" data-lang-key="email">Email</label>
+                            <input type="email" id="user-email" class="form-control" placeholder="Enter email" required aria-label="User email">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="user-role" class="form-label" data-lang-key="role">Role</label>
+                            <select id="user-role" class="form-select" required aria-label="User role">
+                                <option value="">Select Role</option>
+                                <option value="admin">Admin</option>
+                                <option value="officer">Field Officer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3"><i class="fas fa-user-plus"></i> <span data-lang-key="add_user">Add User</span></button>
+                </form>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th data-lang-key="name">Name</th>
+                            <th data-lang-key="email">Email</th>
+                            <th data-lang-key="role">Role</th>
+                            <th data-lang-key="actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table">
+                        <tr><td colspan="4">No users found.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scheduler Control Section -->
+    <section id="scheduler" class="result-viewer">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2><i class="fas fa-clock"></i> <span data-lang-key="scheduler_control">Scheduler Control</span></h2>
+                <p data-lang-key="configure_detection">Configure and monitor automated detection runs</p>
+            </div>
+            <div class="fade-in">
+                <form id="scheduler-form" class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="scheduler-interval" class="form-label" data-lang-key="run_interval">Run Interval (days)</label>
+                            <input type="number" id="scheduler-interval" class="form-control" min="1" value="5" required aria-label="Scheduler interval">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="scheduler-wards" class="form-label" data-lang-key="wards_monitor">Wards to Monitor</label>
+                            <select id="scheduler-wards" class="form-select" multiple required aria-label="Wards to monitor">
+                                <option value="1">Ward 1</option>
+                                <option value="2">Ward 2</option>
+                                <option value="3">Ward 3</option>
+                                <option value="4">Ward 4</option>
+                                <option value="5">Ward 5</option>
+                                <option value="6">Ward 6</option>
+                                <option value="7">Ward 7</option>
+                                <option value="8">Ward 8</option>
+                                <option value="9">Ward 9</option>
+                                <option value="10">Ward 10</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="scheduler-status" class="form-label" data-lang-key="scheduler_status">Scheduler Status</label>
+                            <input type="text" id="scheduler-status" class="form-control" value="Running" readonly aria-label="Scheduler status">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3"><i class="fas fa-save"></i> <span data-lang-key="update_scheduler">Update Scheduler</span></button>
+                    <button type="button" id="manual-run-btn" class="btn btn-secondary mt-3"><i class="fas fa-play"></i> <span data-lang-key="run_now">Run Now</span></button>
+                </form>
+                <h3><i class="fas fa-file-alt"></i> <span data-lang-key="scheduler_logs">Scheduler Logs</span></h3>
+                <pre id="scheduler-logs" style="max-height: 300px; overflow-y: auto;"></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reports Section -->
+    <section id="reports" class="result-viewer">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2><i class="fas fa-file-download"></i> <span data-lang-key="reports">Reports</span></h2>
+                <p data-lang-key="download_reports">Download PDF, CSV, or GeoJSON reports for detections</p>
+            </div>
+            <div class="fade-in">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <select id="report-type" class="form-select" aria-label="Report type">
+                            <option value="pdf">PDF</option>
+                            <option value="csv">CSV</option>
+                            <option value="geojson">GeoJSON</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="date" id="report-date" class="form-control" aria-label="Report date">
+                    </div>
+                    <div class="col-md-4">
+                        <button id="download-report-btn" class="btn btn-primary"><i class="fas fa-download"></i> <span data-lang-key="download_report">Download Report</span></button>
+                    </div>
+                </div>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th data-lang-key="report_type">Report Type</th>
+                            <th data-lang-key="date_generated">Date Generated</th>
+                            <th data-lang-key="ward">Ward</th>
+                            <th data-lang-key="download">Download</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-table">
+                        <tr><td colspan="4">No reports found.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <a href="/" class="footer-logo">
+                    <i class="fas fa-satellite"></i> Bhushuraksha AI
+                </a>
+                <p data-lang-key="footer_desc">Protecting land rights with advanced AI technology.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4 data-lang-key="solutions">Solutions</h4>
+                <ul>
+                    <li><a href="#">Government Agencies</a></li>
+                    <li><a href="#">Property Owners</a></li>
+                    <li><a href="#">Legal Authorities</a></li>
+                    <li><a href="#">Real Estate</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4 data-lang-key="technology">Technology</h4>
+                <ul>
+                    <li><a href="#">AI Detection</a></li>
+                    <li><a href="#">Satellite Monitoring</a></li>
+                    <li><a href="#">Legal Validation</a></li>
+                    <li><a href="#">Reporting System</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4 data-lang-key="support">Support</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API Reference</a></li>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Support</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <p>&copy; 2025 Bhushuraksha AI. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0/dist/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.2/dist/socket.io.min.js"></script>
+    <script src="/static/js/script.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script>
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        // Language toggle and translations (as before)
+        async function loadTranslations(lang = 'en') {
+            // Implementation as in previous responses
+        }
+
+        document.getElementById('language-toggle').addEventListener('change', function() {
+            // Implementation as before
+        });
+
+        // Initialize Leaflet map
+        var map = L.map('dashboard-map').setView([22.7196, 75.8577], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Real-time new detection
+        socket.on('new_detection', function(data) {
+            alert('New Detection: ' + data.message);
+            L.geoJSON(data.geojson).addTo(map);
+            loadDashboardStats();  // Refresh stats
+            loadAlertTable();  // Refresh alerts
+        });
+
+        // Initialize Chart.js for trends
+        var ctx = document.getElementById('trend-chart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Detections',
+                    data: [10, 15, 8, 12, 20, 18],
+                    borderColor: '#2563eb',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Fetch dashboard stats
+        async function loadDashboardStats() {
+            try {
+                const res = await fetch('/api/dashboard_stats');
+                const data = await res.json();
+                document.getElementById('total-detections').textContent = data.total_detections;
+                document.getElementById('pending-alerts').textContent = data.pending_alerts;
+                document.getElementById('resolved-cases').textContent = data.resolved_cases;
+            } catch (err) {
+                console.error('Error fetching stats:', err);
+            }
+        }
+
+        // Fetch and update alert table
+        async function loadAlertTable(ward = '', severity = '', date = '') {
+            try {
+                const res = await fetch(`/api/alerts?ward=${ward}&severity=${severity}&date=${date}`);
+                const data = await res.json();
+                const tableBody = document.getElementById('alert-table');
+                tableBody.innerHTML = data.alerts.map(alert => `
+                    <tr>
+                        <td>${alert.ward}</td>
+                        <td>${alert.location}</td>
+                        <td>${alert.coordinates}</td>
+                        <td>${alert.date}</td>
+                        <td>${alert.severity}</td>
+                        <td>${alert.status}</td>
+                        <td><button class="btn btn-sm btn-primary" onclick="viewAlert(${alert.id})">View</button></td>
+                    </tr>
+                `).join('') || '<tr><td colspan="7">No alerts found.</td></tr>';
+            } catch (err) {
+                console.error('Error fetching alerts:', err);
+            }
+        }
+
+        document.getElementById('apply-filters').addEventListener('click', function() {
+            const ward = document.getElementById('alert-ward-filter').value;
+            const severity = document.getElementById('alert-severity-filter').value;
+            const date = document.getElementById('alert-date-filter').value;
+            loadAlertTable(ward, severity, date);
+        });
+
+        // View Alert Details (e.g., modal with anomaly image)
+        function viewAlert(id) {
+            // Fetch details and show in modal (implement modal HTML)
+            fetch(`/api/alert/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    // Show modal with data.mask_path image, etc.
+                    alert(`Alert Details: ${JSON.stringify(data)}`);  // Placeholder
+                });
+        }
+
+        // User form submission
+        document.getElementById('user-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+            const role = document.getElementById('user-role').value;
+            fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, role })
+            }).then(() => loadUserTable());
+        });
+
+        // Load User Table
+        async function loadUserTable() {
+            try {
+                const res = await fetch('/api/users');
+                const data = await res.json();
+                const tableBody = document.getElementById('user-table');
+                tableBody.innerHTML = data.users.map(user => `
+                    <tr>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="editUser(${user.id})">Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('') || '<tr><td colspan="4">No users found.</td></tr>';
+            } catch (err) {
+                console.error('Error fetching users:', err);
+            }
+        }
+
+        function editUser(id) {
+            // Fetch user data and populate form for edit (implement)
+            alert(`Edit user ${id}`);
+        }
+
+        function deleteUser(id) {
+            if (confirm('Delete user?')) {
+                fetch(`/api/users/${id}`, { method: 'DELETE' }).then(() => loadUserTable());
+            }
+        }
+
+        // Scheduler form submission
+        document.getElementById('scheduler-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const interval = document.getElementById('scheduler-interval').value;
+            const wards = Array.from(document.getElementById('scheduler-wards').selectedOptions).map(opt => opt.value);
+            fetch('/api/scheduler', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ interval, wards })
+            }).then(() => {
+                alert('Scheduler updated successfully');
+                loadSchedulerLogs();
+            });
+        });
+
+        // Manual scheduler run
+        document.getElementById('manual-run-btn').addEventListener('click', function() {
+            fetch('/api/scheduler/run', { method: 'POST' })
+                .then(() => {
+                    alert('Manual detection run triggered');
+                    loadSchedulerLogs();
+                });
+        });
+
+        // Fetch scheduler logs
+        async function loadSchedulerLogs() {
+            try {
+                const res = await fetch('/api/scheduler/logs');
+                const data = await res.json();
+                document.getElementById('scheduler-logs').textContent = data.logs.join('\n');
+            } catch (err) {
+                console.error('Error fetching logs:', err);
+            }
+        }
+
+        // Download report
+        document.getElementById('download-report-btn').addEventListener('click', function() {
+            const type = document.getElementById('report-type').value;
+            const date = document.getElementById('report-date').value;
+            window.location.href = `/api/reports/download?type=${type}&date=${date}`;
+        });
+
+        // Load Fetched Images
+        async function loadFetchedImages() {
+            try {
+                const res = await fetch('/api/images');
+                const data = await res.json();
+                const gallery = document.getElementById('fetched-images-gallery');
+                gallery.innerHTML = data.images.map(img => `
+                    <div style="flex: 1; min-width: 200px;">
+                        <h4>${img.tag.replace('manual_', '')} Image</h4>
+                        <img src="data:image/png;base64,${img.display_image}" alt="${img.tag}" style="width: 100%; border-radius: 8px;" loading="lazy">
+                        <p>Date: ${new Date(img.timestamp).toLocaleDateString()}</p>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading images:', err);
+            }
+        }
+
+        // Load Anomaly Images (from detections)
+        async function loadAnomalyImages() {
+            try {
+                const res = await fetch('/api/latest_detection');  // Or /api/detections for all
+                const data = await res.json();
+                const gallery = document.getElementById('anomaly-images-gallery');
+                gallery.innerHTML = '';  // Clear
+                if (data.detected) {
+                    gallery.innerHTML = `
+                        <div style="flex: 1; min-width: 200px;">
+                            <h4>Anomaly Mask</h4>
+                            <img src="${data.mask_path}" alt="Anomaly Mask" style="width: 100%; border-radius: 8px;" loading="lazy">
+                            <p>Detected: ${new Date(data.timestamp).toLocaleDateString()}</p>
+                        </div>
+                    `;
+                } else {
+                    gallery.innerHTML = '<p>No anomalies detected yet.</p>';
+                }
+            } catch (err) {
+                console.error('Error loading anomalies:', err);
+            }
+        }
+
+        // Initial Loads
+        loadTranslations();  // Assuming from previous
+        loadDashboardStats();
+        loadAlertTable();
+        loadUserTable();
+        loadSchedulerLogs();
+        loadFetchedImages();
+        loadAnomalyImages();
+        socket.emit('ping');
+    </script>
+</body>
+</html>

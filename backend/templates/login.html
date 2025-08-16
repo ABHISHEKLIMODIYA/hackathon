@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhushuraksha AI - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://kit.fontawesome.com/1234567890.js" crossorigin="anonymous"></script>
+    <!-- Internal Efficient Animated CSS (Similar to Admin Dashboard) -->
+    <style>
+        /* General styling */
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background-color: #f5f6fa;
+          margin: 0;
+          padding: 0;
+          color: #2f3640;
+        }
+         /* Navbar */
+        .navbar {
+          background-color: #192a56;
+          color: white;
+          padding: 10px 20px;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+        }
+        .nav-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .nav-logo {
+          font-size: 1.6rem;
+          color: #f5f6fa;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+        }
+        .nav-logo i {
+          margin-right: 10px;
+          color: #00a8ff;
+        }
+        .nav-menu {
+          list-style: none;
+          display: flex;
+          gap: 15px;
+          margin: 0;
+          padding: 0;
+        }
+        .nav-menu li a {
+          color: white;
+          text-decoration: none;
+          font-weight: 500;
+          padding: 6px 8px;
+          border-radius: 4px;
+          transition: background-color 0.3s ease;
+        }
+        .nav-menu li a:hover {
+          background-color: #273c75;
+        }
+        .nav-toggle {
+          display: none;
+          flex-direction: column;
+          cursor: pointer;
+        }
+        .nav-toggle span {
+          background-color: white;
+          height: 3px;
+          width: 25px;
+          margin: 4px 0;
+          border-radius: 2px;
+        }
+
+
+        
+
+        @keyframes gradientMove {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+
+        .container {
+          max-width: 1200px;
+          margin: 30px auto;
+          padding: 0 20px;
+        }
+
+        .section-header {
+          text-align: center;
+          margin-bottom: 40px;
+        }
+        .section-header h2 {
+          font-size: 2.8rem;
+          color: #192a56;
+          margin-bottom: 10px;
+          animation: fadeInDown 1s ease forwards;
+        }
+        .section-header p {
+          font-size: 1.25rem;
+          color: #718093;
+          animation: fadeInUp 1s ease forwards 0.3s;
+        }
+
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-control, .form-select {
+          border-radius: 8px;
+          border: 1px solid #ced4da;
+          padding: 12px 18px;
+          font-size: 1.1rem;
+          transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+          border-color: #00a8ff;
+          box-shadow: 0 0 12px rgba(0, 168, 255, 0.4);
+          transform: scale(1.02);
+          outline: none;
+        }
+
+        .btn-primary {
+          background: linear-gradient(90deg, #2563eb, #9333ea, #2563eb);
+          background-size: 200% auto;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          padding: 12px 24px;
+          font-size: 1.125rem;
+          transition: background-position 0.5s, transform 0.3s ease;
+        }
+        .btn-primary:hover {
+          background-position: right center;
+          transform: scale(1.05);
+        }
+
+        .fade-in {
+          animation: fadeIn 0.8s ease forwards;
+          opacity: 0;
+        }
+        @keyframes fadeIn {
+          to { opacity: 1; }
+        }
+
+        .text-danger {
+          animation: shake 0.5s;
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(5px); }
+          50% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+          .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+          }
+        }
+          .footer {
+          background: linear-gradient(135deg, #192a56 0%, #273c75 100%);
+          color: white;
+          padding: 60px 0 30px;
+          position: relative;
+          overflow: hidden;
+        }
+        .footer:before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+          animation: footerGlow 3s infinite alternate;
+        }
+        @keyframes footerGlow {
+          0% { opacity: 0.3; }
+          100% { opacity: 0.6; }
+        }
+        .footer-content {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 35px;
+          max-width: 1200px;
+          margin: 0 auto 40px;
+          padding: 0 25px;
+        }
+        .footer-section {
+          animation: fadeInUp 1s ease forwards;
+        }
+        .footer-logo {
+          font-size: 2rem;
+          color: #f5f6fa;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+        .footer-logo i {
+          margin-right: 15px;
+          font-size: 2.5rem;
+          color: #00a8ff;
+          animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .footer-section h4 {
+          font-size: 1.5rem;
+          margin-bottom: 20px;
+          color: #dcdde1;
+        }
+        .footer-section ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .footer-section li a {
+          color: #a4b0be;
+          text-decoration: none;
+          display: block;
+          margin-bottom: 12px;
+          transition: color 0.3s ease, padding-left 0.3s ease;
+        }
+        .footer-section li a:hover {
+          color: #00a8ff;
+          padding-left: 8px;
+        }
+        .social-links a {
+          margin-right: 20px;
+          font-size: 1.6rem;
+          color: #dcdde1;
+          transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .social-links a:hover {
+          color: #00a8ff;
+          transform: rotate(360deg);
+        }
+        .footer-bottom {
+          border-top: 1px solid rgba(255,255,255,0.1);
+          padding-top: 30px;
+          text-align: center;
+          font-size: 1.1rem;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 25px;
+        }
+        .footer-links {
+          margin-top: 15px;
+        }
+        .footer-links a {
+          color: #a4b0be;
+          text-decoration: none;
+          margin: 0 18px;
+          transition: color 0.3s ease;
+        }
+        .footer-links a:hover {
+          color: #00a8ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-logo">
+            <i class="fas fa-satellite"></i> Bhushuraksha AI
+        </a>
+        <ul class="nav-menu">
+            <li><a href="index">Home</a></li>
+            <li><a href="map_view">Map View</a></li>
+            <li><a href="grievance_form">Grievance Portal</a></li>
+            <li><a href="report_viewer">Reports</a></li>
+            <li><a href="admin_dashboard">Admin Dashboard</a></li>
+            <li><a href="login">Login</a></li>
+            <li><a href="register">Register</a></li>
+            <li>
+                <select id="language-toggle" class="form-select" style="width: 120px;" aria-label="Language selection">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                </select>
+            </li>
+        </ul>
+        <div class="nav-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+
+    <!-- Login Section -->
+    <section id="login" class="contact">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2><i class="fas fa-user-lock"></i> Login to Bhushuraksha AI</h2>
+                <p>Access your account to monitor, manage, or report land encroachments</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="contact-form fade-in">
+                        <form id="login-form">
+                            <div class="form-group mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" class="form-control" placeholder="Enter your email" required aria-label="Email address">
+                            </div>
+                            <div class="form-group mb-3 position-relative">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" id="password" class="form-control" placeholder="Enter your password" required aria-label="Password">
+                                <i class="fas fa-eye password-toggle" id="toggle-password" style="position: absolute; right: 15px; top: 40px; cursor: pointer;"></i>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="role" class="form-label">Role</label>
+                                <select id="role" class="form-select" required aria-label="User role">
+                                    <option value="">Select Role</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="officer">Field Officer</option>
+                                    <option value="public">Public</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" id="remember-me" class="form-check-input" aria-label="Remember me">
+                                    <label for="remember-me" class="form-check-label">Remember me</label>
+                                </div>
+                            </div>
+                            <div id="error-message" class="text-danger mb-3" style="display: none;"></div>
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-sign-in-alt"></i> Login</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <p>Don't have an account? <a href="register">Register here</a></p>
+                            <p>Forgot password? <a href="forgot_password">Reset password</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact-info fade-in">
+                        <div class="contact-item">
+                            <i class="fas fa-user-shield"></i>
+                            <div>
+                                <h4>Secure Access</h4>
+                                <p>Your data is protected with JWT-based authentication.</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <h4>Role-Based Access</h4>
+                                <p>Admins, field officers, and public users have tailored dashboards.</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-globe"></i>
+                            <div>
+                                <h4>Bilingual Support</h4>
+                                <p>Switch between Hindi and English for ease of use.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <a href="/" class="footer-logo">
+                    <i class="fas fa-satellite"></i> Bhushuraksha AI
+                </a>
+                <p>Protecting land rights with advanced AI technology.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Solutions</h4>
+                <ul>
+                    <li><a href="#">Government Agencies</a></li>
+                    <li><a href="#">Property Owners</a></li>
+                    <li><a href="#">Legal Authorities</a></li>
+                    <li><a href="#">Real Estate</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Technology</h4>
+                <ul>
+                    <li><a href="#">AI Detection</a></li>
+                    <li><a href="#">Satellite Monitoring</a></li>
+                    <li><a href="#">Legal Validation</a></li>
+                    <li><a href="#">Reporting System</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API Reference</a></li>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Support</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <p>&copy; 2025 Bhushuraksha AI. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script>
+        // Language toggle
+        document.getElementById('language-toggle').addEventListener('change', function() {
+            fetch('/set_language', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language: this.value })
+            }).then(() => location.reload());
+        });
+
+        // Password Toggle Functionality
+        const togglePassword = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('password');
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Login form submission
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, role, rememberMe })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Store JWT token in localStorage if rememberMe is checked
+                    if (rememberMe) {
+                        localStorage.setItem('jwt_token', data.token);
+                    }
+                    // Redirect based on role
+                    if (role === 'admin') {
+                        window.location.href = '/admin_dashboard';
+                    } else if (role === 'officer') {
+                        window.location.href = '/officer_dashboard';
+                    } else {
+                        window.location.href = '/public_dashboard';
+                    }
+                } else {
+                    document.getElementById('error-message').textContent = data.message || 'Invalid credentials';
+                    document.getElementById('error-message').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('error-message').textContent = 'Error logging in. Please try again.';
+                document.getElementById('error-message').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
